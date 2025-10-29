@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yönetim Paneli v2 (Güvenli)</title>
+<style>
+  :root{--bg:#0e1117;--card:#141926;--text:#e5ecf5;--muted:#93a0b2;--edge:#1f2733;--acc:#3aa0ff}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
+  header{padding:12px 16px;border-bottom:1px solid var(--edge);display:flex;gap:8px;align-items:center;justify-content:space-between}
+  main{max-width:1060px;margin:0 auto;padding:16px}
+  .tabs{display:flex;gap:6px}
+  .tab{padding:8px 12px;border:1px solid var(--edge);border-radius:10px;background:#0f1420;cursor:pointer}
+  .tab.active{background:var(--acc);color:#06121f;border-color:#2d8fe8}
+  .card{background:var(--card);border:1px solid var(--edge);border-radius:16px;padding:16px;margin:14px 0}
+  input,textarea{width:100%;padding:10px;border:1px solid var(--edge);border-radius:10px;background:#0f1420;color:var(--text)}
+  label{display:block;margin:8px 0 6px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  button{padding:10px 14px;border-radius:10px;border:1px solid #2d8fe8;background:var(--acc);color:#06121f;font-weight:600;cursor:pointer}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .muted{color:var(--muted)}
+  .danger{background:#ff4d4d;border-color:#ff6565;color:#1b0000}
+  /* login overlay */
+  #lock{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,12,.9);z-index:9999}
+  #lock .box{width:min(420px,92vw);background:#0f1420;border:1px solid var(--edge);border-radius:16px;padding:18px}
+  #lock h1{margin:0 0 12px;font-size:20px}
+</style>
+</head>
+<body>
+<div id="lock">
+  <div class="box">
+    <h1>Giriş</h1>
+    <p class="muted">Lütfen yönetici anahtarını girin.</p>
+    <input id="loginToken" placeholder="ADMIN_TOKEN" autofocus>
+    <div class="row" style="margin-top:12px">
+      <button onclick="doLogin()">Giriş yap</button>
+      <button class="danger" onclick="clearLogin()">Temizle</button>
+    </div>
+    <div id="loginStatus" class="muted" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<header>
+  <div>Yönetim Paneli v2</div>
+  <div class="row">
+    <a class="tab" href="/" style="text-decoration:none">Siteyi Gör</a>
+  </div>
+</header>
+<main>
+  <div class="tabs">
+    <div id="tab-settings" class="tab active" onclick="showTab('settings')">Genel Ayarlar</div>
+    <div id="tab-products" class="tab" onclick="showTab('products')">Ürünler</div>
+  </div>
+
+  <section id="view-settings" class="card">
+    <div class="grid">
+      <div><label>Site Başlığı</label><input id="siteTitle"></div>
+      <div><label>Logo URL</label><input id="logoUrl"></div>
+      <div><label>Hero Başlık</label><input id="heroTitle"></div>
+      <div><label>Hero Alt Başlık</label><input id="heroSubtitle"></div>
+      <div><label>Adres</label><textarea id="address" rows="2"></textarea></div>
+      <div><label>Telefon</label><input id="phone"></div>
+      <div><label>WhatsApp</label><input id="whatsapp"></div>
+      <div><label>Instagram Linki</label><input id="instagram"></div>
+      <div><label>Popüler Başlık</label><input id="popularTitle"></div>
+      <div><label>Footer Notu</label><input id="footerNote"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button onclick="saveSettings()">Kaydet</button>
+      <span id="status-settings" class="muted"></span>
+    </div>
+  </section>
+
+  <section id="view-products" class="card" style="display:none">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <input id="fileImport" type="file" accept="application/json">
+        <button onclick="importProducts()">İçe Aktar</button>
+      </div>
+      <div class="row">
+        <button onclick="exportProducts()">Dışa Aktar</button>
+        <button class="danger" onclick="clearProducts()">Hepsini Sil</button>
+      </div>
+    </div>
+    <div class="grid" id="list"></div>
+    <div class="row" style="margin-top:12px">
+      <button onclick="addProduct()">Yeni Ürün Ekle</button>
+      <button onclick="saveProducts()">Yayınla (Canlı Kaydet)</button>
+      <span id="status-products" class="muted"></span>
+    </div>
+  </section>
+</main>
+
+<script>
+const GET_S='/ .netlify/functions/get-settings'.replace(' ','')
+const SAV_S='/ .netlify/functions/save-settings'.replace(' ','')
+const GET_P='/ .netlify/functions/get-products'.replace(' ','')
+const SAV_P='/ .netlify/functions/save-products'.replace(' ','')
+
+function showTab(id){
+  document.getElementById('view-settings').style.display = id==='settings'?'block':'none'
+  document.getElementById('view-products').style.display = id==='products'?'block':'none'
+  document.getElementById('tab-settings').classList.toggle('active', id==='settings')
+  document.getElementById('tab-products').classList.toggle('active', id==='products')
+}
+
+function t(){ return localStorage.getItem('ADMIN_TOKEN')||'' }
+function setT(v){ localStorage.setItem('ADMIN_TOKEN', v) }
+function clearLogin(){ localStorage.removeItem('ADMIN_TOKEN'); document.getElementById('loginToken').value=''; }
+
+async function doLogin(){
+  const val = document.getElementById('loginToken').value.trim()
+  if(!val){ document.getElementById('loginStatus').textContent='Token giriniz'; return }
+  // doğrulama: korumalı endpointten ayarları çekmeyi dene
+  try{
+    const r = await fetch(GET_S, { headers: {'x-admin-token': val}})
+    if(r.ok){
+      setT(val); document.getElementById('loginStatus').textContent='Giriş başarılı'; 
+      document.getElementById('lock').style.display='none'; 
+      loadSettings(); loadProducts();
+    }else{
+      document.getElementById('loginStatus').textContent='Hatalı token';
+    }
+  }catch(e){
+    document.getElementById('loginStatus').textContent='Bağlantı hatası: '+e.message;
+  }
+}
+
+async function fetchJSON(url, opts={}){
+  const headers = Object.assign({'Content-Type':'application/json','x-admin-token':t()}, opts.headers||{});
+  const r = await fetch(url, Object.assign({}, opts, {headers}));
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return await r.json();
+}
+
+// SETTINGS
+async function loadSettings(){
+  try{
+    const s = await fetchJSON(GET_S);
+    for(const k of ['siteTitle','logoUrl','heroTitle','heroSubtitle','address','phone','whatsapp','instagram','popularTitle','footerNote']){
+      const el=document.getElementById(k); if(el) el.value = s[k] ?? '';
+    }
+  }catch(e){ document.getElementById('status-settings').textContent='Ayarlar yüklenemedi: '+e.message }
+}
+async function saveSettings(){
+  try{
+    const body = {}; for(const k of ['siteTitle','logoUrl','heroTitle','heroSubtitle','address','phone','whatsapp','instagram','popularTitle','footerNote']){ body[k]=document.getElementById(k).value }
+    const res = await fetchJSON(SAV_S, {method:'POST', body: JSON.stringify(body)});
+    document.getElementById('status-settings').textContent='Kaydedildi ✓'; setTimeout(()=>location.reload(), 800);
+  }catch(e){ document.getElementById('status-settings').textContent='Hata: '+e.message }
+}
+
+// PRODUCTS
+let products=[];
+function renderList(){
+  document.getElementById('list').innerHTML = products.map((p,i)=>`
+    <div class="card">
+      <label>Başlık</label><input value="\${p.title||''}" onchange="products[${i}].title=this.value">
+      <label>Fiyat</label><input value="\${p.price||''}" onchange="products[${i}].price=this.value">
+      <label>Para Birimi</label><input value="\${p.currency||'TL'}" onchange="products[${i}].currency=this.value">
+      <label>Görsel URL</label><input value="\${p.image||''}" onchange="products[${i}].image=this.value">
+    </div>`).join('');
+}
+async function loadProducts(){
+  try{ products = await fetchJSON(GET_P); if(!Array.isArray(products)) products=[]; renderList(); }
+  catch(e){ document.getElementById('status-products').textContent='Ürünler yüklenemedi: '+e.message }
+}
+function addProduct(){ products.push({title:'Yeni Ürün', price:'', currency:'TL', image:''}); renderList(); }
+function clearProducts(){ if(confirm('Tüm ürünler silinsin mi?')){ products=[]; renderList(); } }
+function importProducts(){
+  const f=document.getElementById('fileImport').files[0]; if(!f) return;
+  const rd=new FileReader(); rd.onload=()=>{ try{ products=JSON.parse(rd.result); renderList(); }catch(e){ alert('Geçersiz JSON') } }; rd.readAsText(f);
+}
+function exportProducts(){ const blob=new Blob([JSON.stringify(products,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='products.json'; a.click(); }
+async function saveProducts(){
+  try{
+    const res = await fetchJSON(SAV_P, {method:'POST', body: JSON.stringify(products)});
+    document.getElementById('status-products').textContent='Yayınlandı ✓';
+  }catch(e){ document.getElementById('status-products').textContent='Hata: '+e.message }
+}
+
+// sayfa açıldığında kilidi göster, login bekle
+document.addEventListener('DOMContentLoaded', () => {
+  const existing = t();
+  if(existing){ document.getElementById('loginToken').value = existing; }
+});
+</script>
+</body></html>
