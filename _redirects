@@ -1,2 +1,3 @@
-/admin/*     /admin/:splat     200
-/*           /index.html       200
+/admin/panel-v2.html   /admin/panel-v2.html   200
+/admin/*               /admin/:splat          200
+/*                     /index.html            200
