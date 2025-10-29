@@ -1,8 +1,2 @@
-# Admin paneli yönlendirme — index’e gitmesin
 /admin/*     /admin/:splat     200
-
-# Netlify Functions (ayar okuma, kaydetme) — doğru çalışsın
-/.netlify/functions/*  /.netlify/functions/:splat  200
-
-# Site SPA (tek sayfa) yönlendirmesi en sonda kalsın
 /*           /index.html       200
