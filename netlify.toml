@@ -1,0 +1,16 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/data/products.json"
+  to = "/.netlify/functions/get-products"
+  status = 200
+  force = true
+
+# Optional: set CORS headers for the functions
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"

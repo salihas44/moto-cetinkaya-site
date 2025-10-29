@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "sku": "MT-1001",
+    "title": "Örnek Ürün 1",
+    "price": 1499.90,
+    "currency": "TRY",
+    "category": "Motosiklet Aksesuar",
+    "stock": 25,
+    "active": true,
+    "image": "assets/images/sample-1.jpg",
+    "description": "Dayanıklı ve kaliteli örnek ürün açıklaması."
+  }
+]

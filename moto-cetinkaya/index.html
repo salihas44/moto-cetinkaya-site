@@ -1,0 +1,159 @@
+
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Moto Çetinkaya | Motorcycle Sales & Service</title>
+<link rel="stylesheet" href="css/style.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+  <div class="container">
+    <nav>
+      <div class="logo">
+        <img src="assets/img/logo.jpg" alt="Moto Çetinkaya Logo"/>
+        <div>Moto Çetinkaya</div>
+      </div>
+      <div class="menu" id="menu">
+        <a href="#hizmetler">Hizmetler</a>
+        <a href="#populer">En Çok Satılanlar</a>
+        <a href="#iletisim">İletişim</a>
+      </div>
+      <div class="burger" id="burger" aria-label="Menü">
+        <span></span><span></span><span></span>
+      </div>
+      <div>
+        <button class="btn" id="openCart">Sepet <span id="cartBadge" class="badge">0</span></button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <video src="assets/video/hero.mp4" autoplay muted playsinline loop></video>
+  <div class="overlay"></div>
+  <div class="content">
+    <img src="assets/img/logo.jpg" alt="logo"/>
+    <h1>Hız. Özgürlük. Macera.</h1>
+    <p>Çiftlikköy Mah. 32182 Sk. Dış Kapı No:2 — Ekinci Cad. Boyut 34 No:28 | +90 551 723 01 49</p>
+    <div class="badges">
+      <span class="badge">Sıfır & 2.El Satış</span>
+      <span class="badge">Servis & Bakım</span>
+      <span class="badge">Yedek Parça & Aksesuar</span>
+    </div>
+  </div>
+</section>
+
+<section class="section container" id="hizmetler">
+  <h2>Hizmetler</h2>
+  <div class="grid-5">
+    <a class="banner" href="#sifir">
+      <img src="assets/img/banner_sifir.jpg" alt="Sıfır Motor Satışı"/>
+      <div class="cta">Tıkla Gör</div>
+    </a>
+    <a class="banner" href="#ikinci">
+      <img src="assets/img/banner_ikinci_el.jpg" alt="2. El Motor Satışı"/>
+      <div class="cta">Tıkla Gör</div>
+    </a>
+    <a class="banner" href="javascript:void(0)" onclick="openModal('serviceModal')">
+      <img src="assets/img/banner_servis.jpg" alt="Servis"/>
+      <div class="cta">Tıkla Gör</div>
+    </a>
+    <a class="banner" href="#parca">
+      <img src="assets/img/banner_parca.jpg" alt="Yedek Parça"/>
+      <div class="cta">Tıkla Gör</div>
+    </a>
+    <a class="banner" href="#aksesuar">
+      <img src="assets/img/banner_aksesuar.jpg" alt="Aksesuar"/>
+      <div class="cta">Tıkla Gör</div>
+    </a>
+  </div>
+</section>
+
+<section class="section container" id="populer">
+  <h2>En Çok Satılanlar</h2>
+  <div id="productWrap" class="products"></div>
+</section>
+
+<footer class="footer" id="iletisim">
+  <div class="container">
+    <div><strong>Moto Çetinkaya</strong></div>
+    <div>Adres: Çiftlikköy Mah. 32182 Sk. Dış Kapı No: 2 — Ekinci Cadde Boyut 34 No: 28</div>
+    <div>Telefon / WhatsApp: +90 551 723 01 49</div>
+    <small>© 2025 Moto Çetinkaya – Motorcycle Sales & Service</small>
+  </div>
+</footer>
+
+<a class="whatsapp-float" href="https://wa.me/905517230149" target="_blank" aria-label="WhatsApp">
+  WA
+</a>
+
+<!-- Product Detail Modal -->
+<div class="modal" id="detailModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <strong>Ürün Detayı</strong>
+      <span class="modal-close" onclick="closeModal('detailModal')">✕</span>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Cart Modal -->
+<div class="modal" id="cartModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <strong>Sepetiniz</strong>
+      <span class="modal-close" onclick="closeModal('cartModal')">✕</span>
+    </div>
+    <div class="modal-body" id="cartBody"></div>
+  </div>
+</div>
+
+<!-- Service Modal (Appointment) -->
+<div class="modal" id="serviceModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <strong>Servis Randevusu</strong>
+      <span class="modal-close" onclick="closeModal('serviceModal')">✕</span>
+    </div>
+    <div class="modal-body">
+      <form id="serviceForm" class="form-grid">
+        <div>
+          <label>Ad Soyad</label>
+          <input name="ad" required placeholder="Adınız Soyadınız">
+        </div>
+        <div>
+          <label>Telefon</label>
+          <input name="tel" required placeholder="+90...">
+        </div>
+        <div>
+          <label>Tarih</label>
+          <input type="date" name="tarih" required>
+        </div>
+        <div>
+          <label>Saat</label>
+          <input type="time" name="saat" required>
+        </div>
+        <div>
+          <label>Motosiklet Modeli</label>
+          <input name="model" placeholder="Marka / Model">
+        </div>
+        <div style="grid-column:1/3">
+          <label>Not</label>
+          <textarea name="not" placeholder="Sorun veya talebinizi yazın..."></textarea>
+        </div>
+        <div class="form-actions" style="grid-column:1/3">
+          <button class="btn btn-primary" type="submit">WhatsApp’tan Gönder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
