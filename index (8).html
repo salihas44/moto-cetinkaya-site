@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moto Çetinkaya</title>
+  <style>
+    :root{--bg:#0f1217;--card:#121721;--muted:#93a0b2;--text:#e8eef7;--acc:#3aa0ff}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;background:var(--bg);color:var(--text)}
+    header{padding:18px 16px;border-bottom:1px solid #1f2733;background:#0b0f14;position:sticky;top:0}
+    .container{max-width:1100px;margin:0 auto;padding:0 16px}
+    .brand{font-size:18px;font-weight:700}
+    .btn{display:inline-block;padding:10px 14px;border:1px solid #263041;border-radius:10px;background:#141a24;color:var(--text);text-decoration:none}
+    .btn-primary{background:var(--acc);border-color:#2d8fe8;color:#051524}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:18px 0 40px}
+    .card{background:#121721;border:1px solid #1f2733;border-radius:16px;overflow:hidden}
+    .card img{width:100%;height:160px;object-fit:cover;background:#0b0f14}
+    .card .p{padding:12px}
+    .title{font-size:16px;margin:0 0 6px}
+    .muted{color:var(--muted);font-size:13px}
+    footer{padding:16px;border-top:1px solid #1f2733;color:var(--muted);text-align:center}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div class="brand">Moto Çetinkaya</div>
+      <nav style="display:flex;gap:8px">
+        <a class="btn" href="/admin/admin.html">Yönetici Girişi</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 style="font-size:22px;margin:18px 0 6px">Ürünler</h1>
+    <p class="muted">Bu liste <code>data/products.json</code> dosyasından yüklenmektedir.</p>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <footer>© 2025 Moto Çetinkaya</footer>
+
+  <script>
+    async function load(){
+      try{
+        const r = await fetch('/data/products.json');
+        const arr = await r.json();
+        const grid = document.getElementById('grid');
+        if(!Array.isArray(arr) || arr.length===0){
+          grid.innerHTML = '<div class="muted">Ürün bulunamadı. Admin panelinden ürün ekleyin ve Yayınla (Canlı Kaydet) deyin.</div>';
+          return;
+        }
+        grid.innerHTML = arr.map(p => `
+          <div class="card">
+            <img src="${p.image || ''}" alt="">
+            <div class="p">
+              <h3 class="title">${p.title || 'Ürün'}</h3>
+              <div class="muted">${(p.price ?? '-') + ' ' + (p.currency || '')}</div>
+            </div>
+          </div>
+        `).join('');
+      }catch(e){
+        document.getElementById('grid').innerHTML = '<div class="muted">Veri yüklenemedi: '+e.message+'</div>';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
